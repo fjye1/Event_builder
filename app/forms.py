@@ -49,3 +49,18 @@ class EventForm(FlaskForm):
     notes = TextAreaField('Notes', validators=[Optional()])
 
     submit = SubmitField('Create Event')
+
+
+class CompanyForm(FlaskForm):
+    name = StringField('Company Name', validators=[DataRequired()])
+    submit = SubmitField('Create Company')
+
+
+class ClientForm(FlaskForm):
+    name = StringField('Client Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[Optional()])
+    phone = StringField('Phone', validators=[Optional()])
+
+    company_id = SelectField('Company', coerce=int, validators=[DataRequired()])
+
+    submit = SubmitField('Create Client')

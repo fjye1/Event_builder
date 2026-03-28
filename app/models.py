@@ -14,12 +14,27 @@ class User(db.Model):
     events = db.relationship('Event', backref='created_by', lazy=True)
 
 # ------------------
+# Company
+# ------------------
+class Company(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+
+    clients = db.relationship('Client', backref='company', lazy=True)
+
+
+# ------------------
 # Client
 # ------------------
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    contact_details = db.Column(db.String(200))
+
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(50))
+
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+
     venues = db.relationship('Venue', backref='client', lazy=True)
     events = db.relationship('Event', backref='client_ref', lazy=True)
 
