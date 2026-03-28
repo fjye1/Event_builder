@@ -1,11 +1,98 @@
+from datetime import datetime
 from app.extensions import db
 
+# ------------------
+# User
+# ------------------
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    email = db.Column(db.String(120), unique=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
 
+    # Relationships
+    events = db.relationship('Event', backref='created_by', lazy=True)
+
+# ------------------
+# Client
+# ------------------
+class Client(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    contact_details = db.Column(db.String(200))
+    venues = db.relationship('Venue', backref='client', lazy=True)
+    events = db.relationship('Event', backref='client_ref', lazy=True)
+
+# ------------------
+# Venue
+# ------------------
+class Venue(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    address = db.Column(db.String(200))
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+    events = db.relationship('Event', backref='venue_ref', lazy=True)
+
+# ------------------
+# Staff
+# ------------------
+class Staff(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    role = db.Column(db.String(50))
+    events = db.relationship('Event', secondary='event_staff', backref='staff_members')
+
+# Association table for many-to-many Event <-> Staff
+event_staff = db.Table('event_staff',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
+    db.Column('staff_id', db.Integer, db.ForeignKey('staff.id'))
+)
+
+# ------------------
+# Vehicle
+# ------------------
+class Vehicle(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    license_plate = db.Column(db.String(20))
+    events = db.relationship('Event', secondary='event_vehicle', backref='vehicles')
+
+# Association table for many-to-many Event <-> Vehicle
+event_vehicle = db.Table('event_vehicle',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
+    db.Column('vehicle_id', db.Integer, db.ForeignKey('vehicle.id'))
+)
+
+# ------------------
+# Product
+# ------------------
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    price = db.Column(db.Float)
+    name = db.Column(db.String(120), nullable=False)
+    description = db.Column(db.Text)
+    events = db.relationship('Event', secondary='event_product', backref='products')
+
+# Association table for many-to-many Event <-> Product
+event_product = db.Table('event_product',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
+    db.Column('product_id', db.Integer, db.ForeignKey('product.id'))
+)
+
+# ------------------
+# Event
+# ------------------
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    unit_start_time = db.Column(db.Time)
+    venue_start_time = db.Column(db.Time)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
+    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    extra = db.Column(db.String(200))
+    invoice = db.Column(db.String(100))
+    notes = db.Column(db.Text)
