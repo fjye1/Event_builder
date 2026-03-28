@@ -32,25 +32,27 @@ def company():
 def client():
     form = ClientForm()
 
+    # Load companies for the select field
     companies = Company.query.all()
-    form.company_id.choices = [(c.id, c.name) for c in companies]
-
-    if not companies:
-        flash("No companies found. Please create a company first.", "warning")
-        return redirect(url_for('create.company'))
-
+    # Add a blank option for no company
+    form.company_id.choices = [(0, "— None —")] + [(c.id, c.name) for c in companies]
 
     if form.validate_on_submit():
+        company_id = form.company_id.data
+        if company_id == 0:
+            company_id = None  # no company selected
+
         new_client = Client(
             name=form.name.data,
             email=form.email.data,
             phone=form.phone.data,
-            company_id=form.company_id.data
+            company_id=company_id
         )
 
         db.session.add(new_client)
         db.session.commit()
 
+        flash(f"Client '{new_client.name}' created successfully.", "success")
         return redirect(url_for('home.index'))
 
     return render_template("create/client.html", form=form)

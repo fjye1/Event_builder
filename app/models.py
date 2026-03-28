@@ -20,6 +20,7 @@ class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
 
+    # One-to-many: a company can have multiple clients
     clients = db.relationship('Client', backref='company', lazy=True)
 
 
@@ -29,14 +30,30 @@ class Company(db.Model):
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-
     email = db.Column(db.String(120))
     phone = db.Column(db.String(50))
 
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    # Optional link to a company
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=True)
 
-    venues = db.relationship('Venue', backref='client', lazy=True)
+    # Many-to-many with venues (via association table)
+    venues = db.relationship(
+        'Venue',
+        secondary='venue_clients',
+        back_populates='clients'
+    )
+
+    # Optional link to events
     events = db.relationship('Event', backref='client_ref', lazy=True)
+
+
+# Association table for many-to-many between Venue and Client
+venue_clients = db.Table(
+    'venue_clients',
+    db.Column('venue_id', db.Integer, db.ForeignKey('venue.id')),
+    db.Column('client_id', db.Integer, db.ForeignKey('client.id'))
+)
+
 
 # ------------------
 # Venue
@@ -45,7 +62,15 @@ class Venue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     address = db.Column(db.String(200))
-    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+
+    # Many-to-many with clients
+    clients = db.relationship(
+        'Client',
+        secondary=venue_clients,
+        back_populates='venues'
+    )
+
+    # One-to-many with events
     events = db.relationship('Event', backref='venue_ref', lazy=True)
 
 # ------------------
