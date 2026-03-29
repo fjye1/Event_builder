@@ -155,6 +155,28 @@ class EventProduct(db.Model):
     extras = db.relationship('ProductExtra', secondary=event_product_extra)
 
 # ------------------
+# Skills
+# ------------------
+class ProductSkill(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)   # e.g., "Flat Roofing", "Branding Tricycle"
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    product_extra_id = db.Column(db.Integer, db.ForeignKey('product_extra.id'), nullable=True)
+
+    product = db.relationship('Product', backref='skills')
+    product_extra = db.relationship('ProductExtra', backref='skills')
+
+
+class StaffSkill(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'))
+    skill_id = db.Column(db.Integer, db.ForeignKey('product_skill.id'))
+    proficiency = db.Column(db.Integer, default=0)   # e.g., 0–5 scale
+
+    staff = db.relationship('Staff', backref='skills')
+    skill = db.relationship('ProductSkill', backref='staff_members')
+
+# ------------------
 # Staff
 # ------------------
 class Staff(db.Model):
