@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, url_for, redirect, flash
 
 from app.extensions import db
-from app.forms import EventForm, CompanyForm, ClientForm, VenueForm
-from app.models import Company, Client, Venue
+from app.forms import EventForm, CompanyForm, ClientForm, VenueForm, VehicleForm
+from app.models import Company, Client, Venue, Vehicle, FuelType
 
 create_bp = Blueprint('create', __name__)
 
@@ -86,6 +86,26 @@ def venue():
         return redirect(url_for('home.index'))
 
     return render_template("create/venue.html", form=form)
+
+
+@create_bp.route("/create/vehicle", methods=['GET', 'POST'])
+def vehicle():
+    form = VehicleForm()
+    db.Enum(FuelType)
+
+    if form.validate_on_submit():
+        vehicle = Vehicle(
+            name=form.name.data,
+            license_plate=form.license_plate.data,
+            mileage=form.mileage.data,
+            fuel_type=FuelType(form.fuel_type.data)
+        )
+
+        db.session.add(vehicle)
+        db.session.commit()
+
+        return redirect(url_for("home.index"))
+    return render_template("create/vehicle.html", form=form)
 
 
 @create_bp.route("/create/event")

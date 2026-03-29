@@ -2,7 +2,7 @@
 # from flask_wtf.file import FileField, FileAllowed
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, DateField, TimeField, TextAreaField, SubmitField, \
-    PasswordField, EmailField, SelectMultipleField
+    PasswordField, EmailField, SelectMultipleField, IntegerField
 from wtforms.validators import DataRequired, Optional
 from wtforms.validators import EqualTo, Email
 from app.models import Client
@@ -82,3 +82,21 @@ class VenueForm(FlaskForm):
         super().__init__(*args, **kwargs)
         # populate choices dynamically
         self.clients.choices = [(c.id, c.name) for c in Client.query.all()]
+
+
+class VehicleForm(FlaskForm):
+    name = StringField("Vehicle Name", validators=[DataRequired()])
+    license_plate = StringField("License Plate")
+    miles_per_gallon = IntegerField("Miles per Gallon")
+
+    fuel_type = SelectField(
+        "Fuel Type",
+        choices=[
+            ("electric", "Electric"),
+            ("petrol", "Petrol"),
+            ("diesel", "Diesel"),
+        ],
+        validators=[DataRequired()]
+    )
+
+    submit = SubmitField("Save Vehicle")

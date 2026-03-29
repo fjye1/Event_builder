@@ -1,10 +1,10 @@
 {% extends 'base/base.html' %}
 
 <!-- Main Content -->
-{% block title %} Client Builder{% endblock %}
+{% block title %} Vehicle Builder{% endblock %}
 {% block content %}
 <section id="form-section">
-    <h2>Add a Client</h2>
+    <h2>Add a Vehicle</h2>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         {% for field in form %}

@@ -1,5 +1,6 @@
 from datetime import datetime
 from app.extensions import db
+import enum
 
 # ------------------
 # User
@@ -73,28 +74,26 @@ class Venue(db.Model):
     # One-to-many with events
     events = db.relationship('Event', backref='venue_ref', lazy=True)
 
-# ------------------
-# Staff
-# ------------------
-class Staff(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    role = db.Column(db.String(50))
-    events = db.relationship('Event', secondary='event_staff', backref='staff_members')
 
-# Association table for many-to-many Event <-> Staff
-event_staff = db.Table('event_staff',
-    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
-    db.Column('staff_id', db.Integer, db.ForeignKey('staff.id'))
-)
 
 # ------------------
 # Vehicle
 # ------------------
+
+class FuelType(enum.Enum):
+    ELECTRIC = "electric"
+    PETROL = "petrol"
+    DIESEL = "diesel"
+
+
 class Vehicle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     license_plate = db.Column(db.String(20))
+    miles_per_gallon = db.Column(db.Integer)
+
+    fuel_type = db.Column(db.Enum(FuelType), nullable=False)
+
     events = db.relationship('Event', secondary='event_vehicle', backref='vehicles')
 
 # Association table for many-to-many Event <-> Vehicle
@@ -116,6 +115,22 @@ class Product(db.Model):
 event_product = db.Table('event_product',
     db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
     db.Column('product_id', db.Integer, db.ForeignKey('product.id'))
+)
+
+
+# ------------------
+# Staff
+# ------------------
+class Staff(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    role = db.Column(db.String(50))
+    events = db.relationship('Event', secondary='event_staff', backref='staff_members')
+
+# Association table for many-to-many Event <-> Staff
+event_staff = db.Table('event_staff',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
+    db.Column('staff_id', db.Integer, db.ForeignKey('staff.id'))
 )
 
 # ------------------
