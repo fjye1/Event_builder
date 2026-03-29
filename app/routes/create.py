@@ -2,8 +2,8 @@ from flask import Blueprint, render_template, url_for, redirect, flash
 
 from app.extensions import db
 from app.forms import EventForm, CompanyForm, ClientForm, VenueForm, VehicleForm, ProductForm, ProductExtraForm, \
-    SkillForm
-from app.models import Company, Client, Venue, Vehicle, FuelType, Product, ProductExtra, Skill
+    SkillForm, StaffForm
+from app.models import Company, Client, Venue, Vehicle, FuelType, Product, ProductExtra, Skill, Staff
 
 create_bp = Blueprint('create', __name__)
 
@@ -98,13 +98,13 @@ def vehicle():
         vehicle = Vehicle(
             name=form.name.data,
             license_plate=form.license_plate.data,
-            mileage=form.miles_per_gallon.data,
+            miles_per_gallon=form.miles_per_gallon.data,
             fuel_type=FuelType(form.fuel_type.data)
         )
 
         db.session.add(vehicle)
         db.session.commit()
-
+        flash(f"Vehicle '{vehicle.name}' created successfully.", "success")
         return redirect(url_for("home.index"))
     return render_template("create/vehicle.html", form=form)
 
@@ -120,7 +120,7 @@ def product():
         )
         db.session.add(product)
         db.session.commit()
-        flash("Product created successfully!", "success")
+        flash(f"Product '{product.name}' created successfully.", "success")
         return redirect(url_for("home.index"))
     return render_template("create/product.html", form=form)
 
@@ -140,7 +140,7 @@ def product_extra():
         )
         db.session.add(extra)
         db.session.commit()
-        flash("Product Extra created successfully!", "success")
+        flash(f"Product extra '{extra.name}' built on base of '{extra.product.name}' created successfully.", "success")
         return redirect(url_for("home.index"))
 
     return render_template("create/product_extra.html", form=form)
@@ -160,6 +160,27 @@ def skill():
         return redirect(url_for("home.index"))
 
     return render_template("create/skill.html", form=form)
+
+
+@create_bp.route("/create/staff", methods=['GET', 'POST'])
+def staff():
+    form = StaffForm()
+    if form.validate_on_submit():
+        staff_member = Staff(
+            name=form.name.data,
+            age=form.age.data,
+            phone=form.phone.data,
+            email=form.email.data,
+            active=form.active.data,
+            price=form.price.data,
+            notes=form.notes.data
+        )
+        db.session.add(staff_member)
+        db.session.commit()
+        flash("Staff member created successfully!", "success")
+        return redirect(url_for("home.index"))
+
+    return render_template("create/staff.html", form=form)
 
 
 @create_bp.route("/create/event")

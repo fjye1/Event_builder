@@ -2,7 +2,7 @@
 # from flask_wtf.file import FileField, FileAllowed
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, DateField, TimeField, TextAreaField, SubmitField, \
-    PasswordField, EmailField, SelectMultipleField, IntegerField, DecimalField
+    PasswordField, EmailField, SelectMultipleField, IntegerField, DecimalField, BooleanField
 from wtforms.validators import DataRequired, Optional, EqualTo, Email, NumberRange
 from app.models import Client, ProductExtra, Product
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
@@ -113,7 +113,7 @@ class ProductForm(FlaskForm):
 class ProductExtraForm(FlaskForm):
     name = StringField("Extra Name", validators=[DataRequired()])
     description = TextAreaField("Description", validators=[Optional()])
-    price = DecimalField("Price (£)", validators=[DataRequired(), NumberRange(min=0)])
+    price = DecimalField("Price (£)", validators=[NumberRange(min=0)])
     product_id = SelectField("Product", coerce=int, validators=[DataRequired()])  # dropdown
     submit = SubmitField("Save Extra")
 
@@ -133,3 +133,14 @@ class SkillForm(FlaskForm):
         allow_blank=True
     )
     submit = SubmitField("Save Skill")
+
+
+class StaffForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    age = IntegerField("Age", validators=[Optional(), NumberRange(min=14, max=100)])
+    phone = StringField("Phone", validators=[Optional()])
+    email = StringField("Email", validators=[Optional(), Email()])
+    active = BooleanField("Active", default=True)
+    price = DecimalField("Hourly Rate (£)", places=2, validators=[DataRequired()])
+    notes = TextAreaField("Notes", validators=[Optional()])
+    submit = SubmitField("Create Staff")

@@ -130,7 +130,7 @@ class StaffSkill(db.Model):
     skill_id = db.Column(db.Integer, db.ForeignKey('skill.id'))
     proficiency = db.Column(db.Integer, default=0)
 
-    staff = db.relationship('Staff', backref='skills')
+    # staff relationship removed — Staff handles it
     skill = db.relationship('Skill', backref='staff_members')
 
 # ------------------
@@ -183,17 +183,30 @@ class EventProduct(db.Model):
 # ------------------
 # Staff
 # ------------------
-class Staff(db.Model):
+# Association table for many-to-many Event <-> Staff
+event_staff = db.Table(
+    'event_staff',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
+    db.Column('staff_id', db.Integer, db.ForeignKey('staff.id'), primary_key=True)
+)
+
+
+class Staff(db.Model, PriceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    role = db.Column(db.String(50))
-    events = db.relationship('Event', secondary='event_staff', backref='staff_members')
+    age = db.Column(db.Integer)
 
-# Association table for many-to-many Event <-> Staff
-event_staff = db.Table('event_staff',
-    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
-    db.Column('staff_id', db.Integer, db.ForeignKey('staff.id'))
-)
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(120), unique=True)
+    active = db.Column(db.Boolean, default=True)
+    notes = db.Column(db.Text)
+
+    # Relationships
+    events = db.relationship('Event', secondary='event_staff', backref='staff_members')
+    skills = db.relationship('StaffSkill', backref='staff', cascade="all, delete-orphan")  # ← keep this
+
+
+
 
 # ------------------
 # Event
