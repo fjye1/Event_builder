@@ -199,8 +199,22 @@ def event():
     venues = client.venues if client else []
     form.venue_id.choices = [(0, "— None —")] + [(v.id, v.name) for v in venues]
 
+    # Populate multi-select choices
+    form.staff.choices = [(s.id, s.name) for s in Staff.query.filter_by(active=True).all()]
+    form.product.choices = [(p.id, p.name) for p in Product.query.all()]
+
+    # Extras depend on selected products
+    selected_products = form.product.data or []
+    if selected_products:
+        extras = ProductExtra.query.filter(ProductExtra.product_id.in_(selected_products)).all()
+    else:
+        extras = []
+    form.extra.choices = [(e.id, e.name) for e in extras]
+
     if form.validate_on_submit():
-        # save your event...
+        # form.staff.data   → list of staff ids
+        # form.product.data → list of product ids
+        # form.extra.data   → list of extra ids
         pass
 
     return render_template("create/event.html", form=form)

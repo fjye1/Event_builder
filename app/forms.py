@@ -38,10 +38,10 @@ class EventForm(FlaskForm):
     client_id = SelectField('Client', coerce=int)
     venue_id = SelectField('Venue', coerce=int)
 
-    staff = StringField('Staff', validators=[Optional()])
+    staff = SelectMultipleField('Staff', coerce=int, validators=[Optional()])
+    product = SelectMultipleField('Product', coerce=int, validators=[Optional()])
+    extra = SelectMultipleField('Extra', coerce=int, validators=[Optional()])
 
-    product = StringField('Product', validators=[Optional()])
-    extra = StringField('Extra', validators=[Optional()])
     invoice = StringField('Invoice', validators=[Optional()])
     notes = TextAreaField('Notes', validators=[Optional()])
 

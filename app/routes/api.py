@@ -23,3 +23,24 @@ def api_venues():
     else:
         venues = []
     return jsonify([{"id": v.id, "name": v.name} for v in venues])
+
+
+@api_bp.route("/api/staff")
+def api_staff():
+    staff = Staff.query.filter_by(active=True).all()
+    return jsonify([{"id": s.id, "name": s.name} for s in staff])
+
+
+@api_bp.route("/api/products")
+def api_products():
+    products = Product.query.all()
+    return jsonify([{"id": p.id, "name": p.name} for p in products])
+
+
+@api_bp.route("/api/extras")
+def api_extras():
+    product_ids = request.args.getlist("product_id", type=int)
+    if not product_ids:
+        return jsonify([])
+    extras = ProductExtra.query.filter(ProductExtra.product_id.in_(product_ids)).all()
+    return jsonify([{"id": e.id, "name": e.name} for e in extras])

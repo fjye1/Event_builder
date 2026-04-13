@@ -7,7 +7,8 @@
     <h2>Add an Event</h2>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
-        {% for field in form %}
+
+        {% for field in form if field.name not in ['staff', 'product', 'extra', 'submit'] %}
         <div class="form-group">
             {{ field.label }}
             {{ field(class="form-control") }}
@@ -21,48 +22,60 @@
         </div>
         {% endfor %}
 
+        <!-- Staff -->
+        <div class="form-group">
+            {{ form.staff.label }}
+            {{ form.staff(style="display:none") }}
+            <div id="staff-tags" class="tag-container">
+                <input type="text" id="staff-input" autocomplete="off">
+            </div>
+            {% if form.staff.errors %}
+            <ul class="errors">{% for e in form.staff.errors %}
+                <li>{{ e }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <!-- Product -->
+        <div class="form-group">
+            {{ form.product.label }}
+            {{ form.product(style="display:none") }}
+            <div id="product-tags" class="tag-container">
+                <input type="text" id="product-input" autocomplete="off">
+            </div>
+            {% if form.product.errors %}
+            <ul class="errors">{% for e in form.product.errors %}
+                <li>{{ e }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <!-- Extra -->
+        <div class="form-group">
+            {{ form.extra.label }}
+            {{ form.extra(style="display:none") }}
+            <div id="extra-tags" class="tag-container">
+                <input type="text" id="extra-input" autocomplete="off">
+            </div>
+            {% if form.extra.errors %}
+            <ul class="errors">{% for e in form.extra.errors %}
+                <li>{{ e }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <!-- Submit -->
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+
     </form>
-<!--    TODO replace this with import of the JS-->
+    <!--    TODO replace this with import of the JS-->
     <script>
-        const companySelect = document.getElementById("company_id");
-        const clientSelect  = document.getElementById("client_id");
-        const venueSelect   = document.getElementById("venue_id");
 
-        function populateSelect(selectEl, items, placeholder) {
-          selectEl.innerHTML = `<option value="0">${placeholder}</option>`;
-          items.forEach(item => {
-            const opt = document.createElement("option");
-            opt.value = item.id;
-            opt.textContent = item.name;
-            selectEl.appendChild(opt);
-          });
-        }
-
-        companySelect.addEventListener("change", async () => {
-          const companyId = companySelect.value;
-
-          // Reset downstream dropdowns
-          populateSelect(clientSelect, [], "— Select Client —");
-          populateSelect(venueSelect,  [], "— None —");
-
-          if (companyId == 0) return;
-
-          const res = await fetch(`/api/clients?company_id=${companyId}`);
-          const clients = await res.json();
-          populateSelect(clientSelect, clients, "— Select Client —");
-        });
-
-        clientSelect.addEventListener("change", async () => {
-          const clientId = clientSelect.value;
-
-          populateSelect(venueSelect, [], "— None —");
-
-          if (clientId == 0) return;
-
-          const res = await fetch(`/api/venues?client_id=${clientId}`);
-          const venues = await res.json();
-          populateSelect(venueSelect, venues, "— None —");
-        });
     </script>
 </section>
 {% endblock %}
