@@ -183,9 +183,24 @@ def staff():
     return render_template("create/staff.html", form=form)
 
 
-@create_bp.route("/create/event")
+@create_bp.route("/create/event", methods=["GET", "POST"])
 def event():
     form = EventForm()
-    return render_template(
-        "create/event.html",
-        form=form)
+    companies = Company.query.all()
+    form.company_id.choices = [(0, "— None —")] + [(c.id, c.name) for c in companies]
+
+    # Rebuild choices based on submitted values so validation doesn't fail
+    company_id = form.company_id.data or 0
+    clients = Client.query.filter_by(company_id=company_id).all() if company_id else []
+    form.client_id.choices = [(0, "— Select Client —")] + [(c.id, c.name) for c in clients]
+
+    client_id = form.client_id.data or 0
+    client = Client.query.get(client_id) if client_id else None
+    venues = client.venues if client else []
+    form.venue_id.choices = [(0, "— None —")] + [(v.id, v.name) for v in venues]
+
+    if form.validate_on_submit():
+        # save your event...
+        pass
+
+    return render_template("create/event.html", form=form)
