@@ -22,5 +22,47 @@
         {% endfor %}
 
     </form>
+<!--    TODO replace this with import of the JS-->
+    <script>
+        const companySelect = document.getElementById("company_id");
+        const clientSelect  = document.getElementById("client_id");
+        const venueSelect   = document.getElementById("venue_id");
+
+        function populateSelect(selectEl, items, placeholder) {
+          selectEl.innerHTML = `<option value="0">${placeholder}</option>`;
+          items.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = item.name;
+            selectEl.appendChild(opt);
+          });
+        }
+
+        companySelect.addEventListener("change", async () => {
+          const companyId = companySelect.value;
+
+          // Reset downstream dropdowns
+          populateSelect(clientSelect, [], "— Select Client —");
+          populateSelect(venueSelect,  [], "— None —");
+
+          if (companyId == 0) return;
+
+          const res = await fetch(`/api/clients?company_id=${companyId}`);
+          const clients = await res.json();
+          populateSelect(clientSelect, clients, "— Select Client —");
+        });
+
+        clientSelect.addEventListener("change", async () => {
+          const clientId = clientSelect.value;
+
+          populateSelect(venueSelect, [], "— None —");
+
+          if (clientId == 0) return;
+
+          const res = await fetch(`/api/venues?client_id=${clientId}`);
+          const venues = await res.json();
+          populateSelect(venueSelect, venues, "— None —");
+        });
+    </script>
 </section>
 {% endblock %}

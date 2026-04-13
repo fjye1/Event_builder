@@ -34,6 +34,7 @@ def create_app():
     from app.routes.edit import edit_bp
     from app.routes.profile import profile_bp
     from app.routes.view import view_bp
+    from app.routes.api import api_bp
 
     app.register_blueprint(home_bp)
     app.register_blueprint(create_bp)
@@ -41,5 +42,6 @@ def create_app():
     app.register_blueprint(edit_bp)
     app.register_blueprint(profile_bp)
     app.register_blueprint(view_bp)
+    app.register_blueprint(api_bp)
 
     return app

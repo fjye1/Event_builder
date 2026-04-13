@@ -4,8 +4,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, DateField, TimeField, TextAreaField, SubmitField, \
     PasswordField, EmailField, SelectMultipleField, IntegerField, DecimalField, BooleanField
 from wtforms.validators import DataRequired, Optional, EqualTo, Email, NumberRange
-from app.models import Client, ProductExtra, Product
-from wtforms_sqlalchemy.fields import QuerySelectMultipleField
+from app.models import Client, ProductExtra, Product, Venue, Company
+from wtforms_sqlalchemy.fields import QuerySelectMultipleField, QuerySelectField
 
 
 
@@ -33,15 +33,10 @@ class EventForm(FlaskForm):
     venue_start_time = TimeField('Arrive at Venue', validators=[Optional()])
     start_time = TimeField('Start Service', validators=[DataRequired()])
     end_time = TimeField('End Service', validators=[DataRequired()])
-    # Example SelectField for client
-    client = SelectField(
-        'Client',
-        choices=[('client1', 'Client 1'), ('client2', 'Client 2')],  # replace with your real clients
-        validators=[DataRequired()]
-    )
 
-    client_contact_details = StringField('Client Contact Details', validators=[Optional()])
-    client_venue = StringField('Client Venue', validators=[Optional()])
+    company_id = SelectField('Company', coerce=int)
+    client_id = SelectField('Client', coerce=int)
+    venue_id = SelectField('Venue', coerce=int)
 
     staff = StringField('Staff', validators=[Optional()])
 
@@ -51,6 +46,10 @@ class EventForm(FlaskForm):
     notes = TextAreaField('Notes', validators=[Optional()])
 
     submit = SubmitField('Create Event')
+
+
+
+
 
 
 class CompanyForm(FlaskForm):
