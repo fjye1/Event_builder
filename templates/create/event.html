@@ -73,9 +73,10 @@
         </div>
 
     </form>
-    <!--    TODO replace this with import of the JS-->
-    <script>
 
+    {% block extra_js %}
+    <script src="{{ url_for('static', filename='js/create/event.js') }}"></script>
+    {% endblock %}
     </script>
 </section>
 {% endblock %}
