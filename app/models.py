@@ -232,17 +232,22 @@ class Staff(db.Model, PriceMixin):
 # ------------------
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, nullable=False)
-    unit_start_time = db.Column(db.Time)
-    venue_start_time = db.Column(db.Time)
-    start_time = db.Column(db.Time, nullable=False)
-    end_time = db.Column(db.Time, nullable=False)
-    products = db.relationship('EventProduct', backref='event')
 
+    # Core identity
+    date = db.Column(db.Date, nullable=False)
+
+    # Links
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
     created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    extra = db.Column(db.String(200))
+    # Aggregate planning field (calculated later, not manually trusted)
+    product_space = db.Column(db.Integer, nullable=True)
+
+    # Relationships
+    products = db.relationship('EventProduct', backref='event', cascade="all, delete-orphan")
+    staff_assignments = db.relationship('EventStaff', backref='event', cascade="all, delete-orphan")
+
+    # Meta
     invoice = db.Column(db.String(100))
     notes = db.Column(db.Text)
