@@ -94,6 +94,9 @@ class Vehicle(db.Model):
 
     fuel_type = db.Column(db.Enum(FuelType), nullable=False)
 
+    product_space = db.Column(db.Integer, nullable=False, default=1)
+    passenger_space = db.Column(db.Integer, nullable=False, default=3)
+
     events = db.relationship('Event', secondary='event_vehicle', backref='vehicles')
 
 # Association table for many-to-many Event <-> Vehicle
