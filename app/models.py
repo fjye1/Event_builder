@@ -190,13 +190,24 @@ class EventProduct(db.Model):
 # ------------------
 # Staff
 # ------------------
-# Association table for many-to-many Event <-> Staff
-### This table is going to change
-event_staff = db.Table(
-    'event_staff',
-    db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
-    db.Column('staff_id', db.Integer, db.ForeignKey('staff.id'), primary_key=True)
-)
+class EventStaff(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
+
+    # Link to specific product booking (optional)
+    event_product_id = db.Column(db.Integer, db.ForeignKey('event_product.id'), nullable=True)
+
+    # Timing
+    arrive_unit_time = db.Column(db.Time, nullable=True)
+    arrive_venue_time = db.Column(db.Time, nullable=True)
+
+    # Relationships
+    staff = db.relationship('Staff')
+    event = db.relationship('Event')
+    event_product = db.relationship('EventProduct', backref='staff_assignments')
+
 
 
 class Staff(db.Model, PriceMixin):
@@ -210,7 +221,7 @@ class Staff(db.Model, PriceMixin):
     notes = db.Column(db.Text)
 
     # Relationships
-    events = db.relationship('Event', secondary='event_staff', backref='staff_members')
+    event_assignments = db.relationship('EventStaff', backref='staff', cascade="all, delete-orphan")
     skills = db.relationship('StaffSkill', backref='staff', cascade="all, delete-orphan")  # ← keep this
 
 
