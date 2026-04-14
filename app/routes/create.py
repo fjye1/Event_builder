@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, url_for, redirect, flash
 from app.extensions import db
 from app.forms import EventForm, CompanyForm, ClientForm, VenueForm, VehicleForm, ProductForm, ProductExtraForm, \
     SkillForm, StaffForm
-from app.models import Company, Client, Venue, Vehicle, FuelType, Product, ProductExtra, Skill, Staff
+from app.models import Company, Client, Venue, Vehicle, FuelType, Product, ProductExtra, Skill, Staff, Event
 
 create_bp = Blueprint('create', __name__)
 
@@ -186,35 +186,36 @@ def staff():
 @create_bp.route("/create/event", methods=["GET", "POST"])
 def event():
     form = EventForm()
+
+    # Company dropdown
     companies = Company.query.all()
     form.company_id.choices = [(0, "— None —")] + [(c.id, c.name) for c in companies]
 
-    # Rebuild choices based on submitted values so validation doesn't fail
+    # Clients depend on company
     company_id = form.company_id.data or 0
     clients = Client.query.filter_by(company_id=company_id).all() if company_id else []
     form.client_id.choices = [(0, "— Select Client —")] + [(c.id, c.name) for c in clients]
 
+    # Venues depend on client
     client_id = form.client_id.data or 0
     client = Client.query.get(client_id) if client_id else None
     venues = client.venues if client else []
     form.venue_id.choices = [(0, "— None —")] + [(v.id, v.name) for v in venues]
 
-    # Populate multi-select choices
-    form.staff.choices = [(s.id, s.name) for s in Staff.query.filter_by(active=True).all()]
-    form.product.choices = [(p.id, p.name) for p in Product.query.all()]
-
-    # Extras depend on selected products
-    selected_products = form.product.data or []
-    if selected_products:
-        extras = ProductExtra.query.filter(ProductExtra.product_id.in_(selected_products)).all()
-    else:
-        extras = []
-    form.extra.choices = [(e.id, e.name) for e in extras]
-
     if form.validate_on_submit():
-        # form.staff.data   → list of staff ids
-        # form.product.data → list of product ids
-        # form.extra.data   → list of extra ids
-        pass
+
+        new_event = Event(
+            date=form.date.data,
+            company_id=company_id if company_id else None,
+            client_id=form.client_id.data if form.client_id.data else None,
+            venue_id=form.venue_id.data if form.venue_id.data else None,
+            invoice=form.invoice.data,
+            notes=form.notes.data
+        )
+
+        db.session.add(new_event)
+        db.session.commit()
+
+        return redirect(url_for("create.edit_event", event_id=new_event.id))
 
     return render_template("create/event.html", form=form)

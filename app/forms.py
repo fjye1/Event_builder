@@ -26,22 +26,15 @@ class RegisterForm(FlaskForm):
 
 
 class EventForm(FlaskForm):
-    # Date of the event
+    # Core event identity
     date = DateField('Event Date', validators=[DataRequired()])
-    # Times
-    unit_start_time = TimeField('Arrive at Unit', validators=[Optional()])
-    venue_start_time = TimeField('Arrive at Venue', validators=[Optional()])
-    start_time = TimeField('Start Service', validators=[DataRequired()])
-    end_time = TimeField('End Service', validators=[DataRequired()])
+    event_name =StringField('event Nickname', validators=[Optional()])
 
-    company_id = SelectField('Company', coerce=int)
-    client_id = SelectField('Client', coerce=int)
-    venue_id = SelectField('Venue', coerce=int)
+    company_id = SelectField('Company', coerce=int, validators=[DataRequired()])
+    client_id = SelectField('Client', coerce=int, validators=[DataRequired()])
+    venue_id = SelectField('Venue', coerce=int, validators=[Optional()])
 
-    staff = SelectMultipleField('Staff', coerce=int, validators=[Optional()])
-    product = SelectMultipleField('Product', coerce=int, validators=[Optional()])
-    extra = SelectMultipleField('Extra', coerce=int, validators=[Optional()])
-
+    # Optional metadata
     invoice = StringField('Invoice', validators=[Optional()])
     notes = TextAreaField('Notes', validators=[Optional()])
 

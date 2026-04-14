@@ -196,16 +196,13 @@ class EventStaff(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
 
-    # Link to specific product booking (optional)
     event_product_id = db.Column(db.Integer, db.ForeignKey('event_product.id'), nullable=True)
 
-    # Timing
     arrive_unit_time = db.Column(db.Time, nullable=True)
     arrive_venue_time = db.Column(db.Time, nullable=True)
 
-    # Relationships
+    # Relationships (ONLY where needed)
     staff = db.relationship('Staff')
-    event = db.relationship('Event')
     event_product = db.relationship('EventProduct', backref='staff_assignments')
 
 
@@ -221,7 +218,7 @@ class Staff(db.Model, PriceMixin):
     notes = db.Column(db.Text)
 
     # Relationships
-    skills = db.relationship('StaffSkill', backref='staff', cascade="all, delete-orphan")  # ← keep this
+    skills = db.relationship('StaffSkill', backref='staff', cascade="all, delete-orphan")
 
 
 
@@ -231,22 +228,24 @@ class Staff(db.Model, PriceMixin):
 # ------------------
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    event_name = db.Column(db.String(120), nullable=True)
 
-    # Core identity
     date = db.Column(db.Date, nullable=False)
 
-    # Links
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
     created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    # Aggregate planning field (calculated later, not manually trusted)
     product_space = db.Column(db.Integer, nullable=True)
 
     # Relationships
     products = db.relationship('EventProduct', backref='event', cascade="all, delete-orphan")
-    staff_assignments = db.relationship('EventStaff', backref='event', cascade="all, delete-orphan")
 
-    # Meta
+    staff_assignments = db.relationship(
+        'EventStaff',
+        backref='event',
+        cascade="all, delete-orphan"
+    )
+
     invoice = db.Column(db.String(100))
     notes = db.Column(db.Text)

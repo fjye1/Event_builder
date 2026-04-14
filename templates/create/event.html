@@ -4,11 +4,10 @@
 {% block title %}Home - Event Builder{% endblock %}
 {% block content %}
 <section id="form-section">
-    <h2>Add an Event</h2>
+    <h2>Create an Event</h2>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
-
-        {% for field in form if field.name not in ['staff', 'product', 'extra', 'submit'] %}
+        {% for field in form %}
         <div class="form-group">
             {{ field.label }}
             {{ field(class="form-control") }}
@@ -21,58 +20,8 @@
             {% endif %}
         </div>
         {% endfor %}
-
-        <!-- Staff -->
-        <div class="form-group">
-            {{ form.staff.label }}
-            {{ form.staff(style="display:none") }}
-            <div id="staff-tags" class="tag-container">
-                <input type="text" id="staff-input" autocomplete="off">
-            </div>
-            {% if form.staff.errors %}
-            <ul class="errors">{% for e in form.staff.errors %}
-                <li>{{ e }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-
-        <!-- Product -->
-        <div class="form-group">
-            {{ form.product.label }}
-            {{ form.product(style="display:none") }}
-            <div id="product-tags" class="tag-container">
-                <input type="text" id="product-input" autocomplete="off">
-            </div>
-            {% if form.product.errors %}
-            <ul class="errors">{% for e in form.product.errors %}
-                <li>{{ e }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-
-        <!-- Extra -->
-        <div class="form-group">
-            {{ form.extra.label }}
-            {{ form.extra(style="display:none") }}
-            <div id="extra-tags" class="tag-container">
-                <input type="text" id="extra-input" autocomplete="off">
-            </div>
-            {% if form.extra.errors %}
-            <ul class="errors">{% for e in form.extra.errors %}
-                <li>{{ e }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-
-        <!-- Submit -->
-        <div class="form-group">
-            {{ form.submit(class="btn btn-primary") }}
-        </div>
-
     </form>
+
 
     {% block extra_js %}
     <script src="{{ url_for('static', filename='js/create/event.js') }}"></script>
