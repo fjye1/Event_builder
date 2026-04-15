@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, redirect, flash
+from flask import Blueprint, render_template, url_for, redirect, flash, request
 
 from app.extensions import db
 from app.forms import EventForm, CompanyForm, ClientForm, VenueForm, VehicleForm, ProductForm, ProductExtraForm, \
@@ -207,6 +207,7 @@ def event():
         new_event = Event(
             date=form.date.data,
             company_id=company_id if company_id else None,
+            event_name=form.event_name.data,
             client_id=form.client_id.data if form.client_id.data else None,
             venue_id=form.venue_id.data if form.venue_id.data else None,
             invoice=form.invoice.data,
@@ -269,17 +270,24 @@ def add_event_product(event_id):
 
 @create_bp.route("/create/event_product/<int:event_product_id>/staff", methods=["GET", "POST"])
 def add_event_staff(event_product_id):
+
+    current_event_product = EventProduct.query.get_or_404(event_product_id)
+    event = current_event_product.event
+
     form = EventStaffForm()
 
-    event_product = EventProduct.query.get_or_404(event_product_id)
-    event = event_product.event
-    form.staff_id.choices = [(s.id, s.name) for s in Staff.query.filter_by(active=True).all()]
+    # Staff choices
+    form.staff_id.choices = [
+        (s.id, s.name) for s in Staff.query.filter_by(active=True).all()
+    ]
+
 
     if form.validate_on_submit():
+
         new_event_staff = EventStaff(
             event_id=event.id,
             staff_id=form.staff_id.data,
-            event_product_id=form.event_product_id.data or None,
+            event_product_id=event_product_id or None,
             arrive_unit_time=form.arrive_unit_time.data,
             arrive_venue_time=form.arrive_venue_time.data
         )
@@ -287,11 +295,13 @@ def add_event_staff(event_product_id):
         db.session.add(new_event_staff)
         db.session.commit()
 
-        return redirect(url_for("create.add_event_staff", event_product_id=event_product.id))
+        return redirect(
+            url_for("create.add_event_staff", event_product_id=event_product_id)
+        )
 
     return render_template(
         "create/event_staff.html",
         form=form,
         event=event,
-        event_product=event_product
+        event_product=current_event_product
     )

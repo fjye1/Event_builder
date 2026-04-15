@@ -16,6 +16,12 @@
             (Event: {{ event_product.event.event_name or "Unnamed Event" }} — {{ event_product.event.date }})
         </small>
     </p>
+    <p>
+        <small>
+            (Service time: {{ event_product.start_time }} — {{ event_product.end_time }})
+        </small>
+    </p>
+
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         {% for field in form %}

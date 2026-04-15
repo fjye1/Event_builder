@@ -257,3 +257,35 @@ class Event(db.Model):
 
     invoice = db.Column(db.String(100))
     notes = db.Column(db.Text)
+
+    def summary(self):  # ← indented inside the class
+        data = {
+            "event_name": self.event_name or "Unnamed Event",
+            "client": self.client_ref.name if self.client_ref else None,
+            "venue": self.venue_ref.name if self.venue_ref else None,
+            "products": [],
+            "extras": set(),
+            "staff": []
+        }
+
+        for ep in self.products:
+            product_info = {
+                "name": ep.product.name if ep.product else "Unknown",
+                "start": ep.start_time,
+                "end": ep.end_time
+            }
+            data["products"].append(product_info)
+
+            for ex in ep.extras:
+                data["extras"].add(ex.name)
+
+        for sa in self.staff_assignments:
+            staff_info = {
+                "name": sa.staff.name if sa.staff else "Unknown",
+                "product": sa.event_product.product.name if sa.event_product and sa.event_product.product else None
+            }
+            data["staff"].append(staff_info)
+
+        data["extras"] = list(data["extras"])  # ← convert set → list before returning
+        return data
+

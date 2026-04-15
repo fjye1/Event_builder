@@ -1,7 +1,59 @@
-{% extends 'base/base.html' %}
+{% extends "base/base.html" %}
 
-<!-- Main Content -->
-{% block title %}View{% endblock %}
+{% block title %}Event Timeline{% endblock %}
+
 {% block content %}
-View
+
+<h2>Event Timeline</h2>
+
+<div class="timeline">
+
+    {% for date, events in grouped.items() %}
+
+    <h3 style="margin-top: 30px;">{{ date.strftime('%A %d %B %Y') }}</h3>
+
+    {% for event in events %}
+
+    <div class="event-card" style="
+                border: 1px solid #ddd;
+                padding: 10px;
+                margin-bottom: 10px;
+                border-radius: 6px;
+                cursor: pointer;
+            ">
+
+        <strong>{{ event.name }}</strong><br>
+
+
+        <small>
+            {% if event.client %}Client: {{ event.client }}<br>{% endif %}
+            {% if event.venue %}Venue: {{ event.venue }}<br>{% endif %}
+
+            {% if event.products %}
+            <strong>Products:</strong><br>
+            {% for p in event.products %}
+            {{ p.name }}{% if p.start %} ({{ p.start }} – {{ p.end }}){% endif %}<br>
+            {% endfor %}
+            {% endif %}
+
+            {% if event.staff %}
+            <strong>Staff:</strong><br>
+            {% for s in event.staff %}
+            {{ s.name }}{% if s.product %} — {{ s.product }}{% endif %}<br>
+            {% endfor %}
+            {% endif %}
+        </small>
+
+        <br>
+
+        <a href="/event/{{ event.id }}">View</a>
+
+    </div>
+
+    {% endfor %}
+
+    {% endfor %}
+
+</div>
+
 {% endblock %}

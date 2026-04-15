@@ -68,17 +68,9 @@ class EventProductForm(FlaskForm):
 
 
 class EventStaffForm(FlaskForm):
-    staff_id = SelectField(
-        "Staff",
-        coerce=int,
-        validators=[DataRequired()]
-    )
+    staff_id = SelectField('Staff Member', coerce=int, choices=[])
 
-    event_product_id = SelectField(
-        "Product (optional)",
-        coerce=int,
-        validators=[Optional()]
-    )
+
 
     arrive_unit_time = TimeField(
         "Arrive at Unit",
