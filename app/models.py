@@ -1,6 +1,7 @@
-from datetime import datetime
-from app.extensions import db
 import enum
+
+from app.extensions import db
+
 
 # ------------------
 # User
@@ -13,6 +14,7 @@ class User(db.Model):
 
     # Relationships
     events = db.relationship('Event', backref='created_by', lazy=True)
+
 
 # ------------------
 # Company
@@ -75,7 +77,6 @@ class Venue(db.Model):
     events = db.relationship('Event', backref='venue_ref', lazy=True)
 
 
-
 # ------------------
 # Vehicle
 # ------------------
@@ -99,11 +100,14 @@ class Vehicle(db.Model):
 
     events = db.relationship('Event', secondary='event_vehicle', backref='vehicles')
 
+
 # Association table for many-to-many Event <-> Vehicle
 event_vehicle = db.Table('event_vehicle',
-    db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
-    db.Column('vehicle_id', db.Integer, db.ForeignKey('vehicle.id'))
-)
+                         db.Column('event_id', db.Integer, db.ForeignKey('event.id')),
+                         db.Column('vehicle_id', db.Integer, db.ForeignKey('vehicle.id'))
+                         )
+
+
 # ------------------
 # Skills
 # ------------------
@@ -112,6 +116,7 @@ class Skill(db.Model):
     name = db.Column(db.String(120), nullable=False, unique=True)
     category = db.Column(db.String(50), nullable=False, default="core")
     # e.g., "core" = required for doing the product, "service" = optional/service side
+
 
 # Product ↔ Skill
 product_skill = db.Table(
@@ -127,6 +132,7 @@ product_extra_skill = db.Table(
     db.Column('skill_id', db.Integer, db.ForeignKey('skill.id'), primary_key=True)
 )
 
+
 class StaffSkill(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'))
@@ -135,6 +141,7 @@ class StaffSkill(db.Model):
 
     # staff relationship removed — Staff handles it
     skill = db.relationship('Skill', backref='staff_members')
+
 
 # ------------------
 # Product
@@ -151,12 +158,14 @@ class PriceMixin:
         # Rounding before casting to int is a safety best-practice
         return int(round(self.price * 100))
 
+
 # This is the table of the base product like just the espresso bike
 class Product(db.Model, PriceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
     skills = db.relationship('Skill', secondary=product_skill, backref='products')
+
 
 # this is the table of extras that can be applied to a product branding or espresso printer
 class ProductExtra(db.Model, PriceMixin):
@@ -171,13 +180,15 @@ class ProductExtra(db.Model, PriceMixin):
 # Association table for EventProduct <-> ProductExtra
 event_product_extra = db.Table(
     'event_product_extra',
-    db.Column('event_product_id', db.Integer, db.ForeignKey('event_product.id')),
+    db.Column('event_product_id', db.Integer,
+              db.ForeignKey('event_product.id', ondelete="CASCADE")),  # Add here
     db.Column('product_extra_id', db.Integer, db.ForeignKey('product_extra.id'))
 )
 
+
 class EventProduct(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'))
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     product = db.relationship('Product')
     # NEW
@@ -193,7 +204,7 @@ class EventProduct(db.Model):
 class EventStaff(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), nullable=False)
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
 
     event_product_id = db.Column(db.Integer, db.ForeignKey('event_product.id'), nullable=True)
@@ -204,7 +215,6 @@ class EventStaff(db.Model):
     # Relationships (ONLY where needed)
     staff = db.relationship('Staff')
     event_product = db.relationship('EventProduct', backref='staff_assignments')
-
 
 
 class Staff(db.Model, PriceMixin):
@@ -219,8 +229,6 @@ class Staff(db.Model, PriceMixin):
 
     # Relationships
     skills = db.relationship('StaffSkill', backref='staff', cascade="all, delete-orphan")
-
-
 
 
 # ------------------
