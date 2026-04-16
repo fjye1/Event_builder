@@ -11,7 +11,7 @@ class User(db.Model):
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-
+    staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), unique=True, nullable=True)
     # Relationships
     events = db.relationship('Event', backref='created_by', lazy=True)
 
@@ -229,7 +229,7 @@ class Staff(db.Model, PriceMixin):
 
     # Relationships
     skills = db.relationship('StaffSkill', backref='staff', cascade="all, delete-orphan")
-
+    user = db.relationship('User', backref='staff', uselist=False)
 
 # ------------------
 # Event
