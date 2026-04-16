@@ -1,7 +1,24 @@
-{% extends 'base/base.html' %}
+{% extends "base/base.html" %}
 
-<!-- Main Content -->
 {% block title %}Profile{% endblock %}
+
 {% block content %}
-Profile page
+
+<div class="profile-container">
+    <h2>Profile</h2>
+
+    <div class="profile-card">
+        <p><strong>Name:</strong> {{ user.name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+
+        {% if user.staff %}
+            <hr>
+            <h3>Staff Info</h3>
+            <p><strong>Phone:</strong> {{ user.staff.phone }}</p>
+            <p><strong>Role:</strong> {{ user.staff.role }}</p>
+            <p><strong>Active:</strong> {{ user.staff.active }}</p>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}
