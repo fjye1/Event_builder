@@ -8,10 +8,12 @@ from app.extensions import db
 # ------------------
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), unique=True, nullable=True)
+
+    # Determines privilege level
+    role = db.Column(db.String(50))
+
     # Relationships
     events = db.relationship('Event', backref='created_by', lazy=True)
 
@@ -220,8 +222,8 @@ class EventStaff(db.Model):
 class Staff(db.Model, PriceMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    age = db.Column(db.Integer)
-
+    dob = db.Column(db.Date, nullable=True)
+    start_date = db.Column(db.Date, nullable=True)
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120), unique=True)
     active = db.Column(db.Boolean, default=True)
