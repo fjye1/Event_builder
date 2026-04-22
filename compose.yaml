@@ -1,9 +1,21 @@
 services:
-  event_builder:
+  event-builder:
     build: .
-    container_name: event_builder
+    container_name: event-builder
+    expose:
+      - "5001"
     ports:
-      - "5001:5001"
+      - "5001:5001"   # optional (only if you want direct debugging access)
+    env_file:
+      - .env
     environment:
       - FLASK_ENV=production
+      - PORTAL_URL=http://portal:5000
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    networks:
+      - fjyeonline-network
     restart: unless-stopped
+
+networks:
+  fjyeonline-network:
+    external: true
